@@ -8,9 +8,17 @@ type TankStatus : String enum {
   UNDER_RESTORATION;
 }
 
+type LocationKind : String enum {
+  HALL;
+  OUTDOOR;
+  WORKSHOP;
+  STORAGE;
+  OFFSITE;
+}
+
 entity Tanks : managed {
   key ID           : Integer;
-  name             : String(100) @mandatory;
+  name             : String(100) @mandatory @assert.unique;
   countryOfOrigin  : String(100);
   yearIntroduced   : Integer;
   status           : TankStatus default 'IN_STORAGE';
@@ -20,8 +28,8 @@ entity Tanks : managed {
 
 entity Locations : managed {
   key ID           : Integer;
-  name             : String(100) @mandatory;
-  type             : String(50);   // hall, storage, workshop, outdoor
+  name             : String(100) @mandatory @assert.unique;
+  type             : LocationKind;
   description      : String(255);
   placements       : Association to many Placements
                        on placements.location = $self;

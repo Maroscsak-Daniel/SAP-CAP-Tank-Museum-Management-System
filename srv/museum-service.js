@@ -10,6 +10,20 @@ function overlaps(aFrom, aTo, bFrom, bTo) {
   return A1 < B2 && B1 < A2
 }
 
+// Maps a Location.type (LocationKind) to the Tank.status that should
+// apply while a tank's current placement is in that kind of location.
+// Returns null when no automatic mapping exists — caller leaves status alone.
+function statusForKind(kind) {
+  switch (kind) {
+    case 'HALL':     return 'ON_DISPLAY'
+    case 'OUTDOOR':  return 'ON_DISPLAY'
+    case 'WORKSHOP': return 'UNDER_RESTORATION'
+    case 'STORAGE':  return 'IN_STORAGE'
+    case 'OFFSITE':  return 'IN_STORAGE'
+    default:         return null
+  }
+}
+
 module.exports = cds.service.impl(async function () {
   const { Tanks, Locations, Placements } = this.entities
 
@@ -105,6 +119,20 @@ module.exports = cds.service.impl(async function () {
     }
   })
 
+  // Sync Tank.status when a new open-ended placement is created via plain CRUD,
+  // so direct POST /Placements and moveTank stay consistent.
+  this.after('CREATE', Placements, async (data, req) => {
+    if (!data || data.toDate) return
+    const tx = cds.transaction(req)
+    const loc = await tx.run(
+      SELECT.one.from(Locations).where({ ID: data.location_ID }).columns('type')
+    )
+    const newStatus = statusForKind(loc?.type)
+    if (newStatus) {
+      await tx.run(UPDATE(Tanks).set({ status: newStatus }).where({ ID: data.tank_ID }))
+    }
+  })
+
   // DELETE safety for Tanks
   this.before('DELETE', Tanks, async (req) => {
     const tx = cds.transaction(req)
@@ -152,7 +180,7 @@ module.exports = cds.service.impl(async function () {
     if (!tank) return req.reject(404, `Tank ${tank_ID} not found`)
 
     const location = await tx.run(
-      SELECT.one.from(Locations).where({ ID: location_ID }).columns('ID')
+      SELECT.one.from(Locations).where({ ID: location_ID }).columns('ID', 'type')
     )
     if (!location) return req.reject(404, `Location ${location_ID} not found`)
 
@@ -163,17 +191,10 @@ module.exports = cds.service.impl(async function () {
     )
 
     if (current) {
-      if (current.fromDate === fromDate) {
+      if (current.fromDate >= fromDate) {
         return req.reject(
           400,
-          'New placement cannot start at the same time as current placement'
-        )
-      }
-
-      if (current.fromDate > fromDate) {
-        return req.reject(
-          400,
-          'New placement cannot start before current placement'
+          'New placement must start after current placement'
         )
       }
 
@@ -188,7 +209,7 @@ module.exports = cds.service.impl(async function () {
       )
     }
 
-    const result = await tx.run(
+    await tx.run(
       INSERT.into(Placements).entries({
         tank_ID,
         location_ID,
@@ -198,17 +219,20 @@ module.exports = cds.service.impl(async function () {
       })
     )
 
-    const insertedId = result?.lastInsertRowid
-
+    // Re-select instead of relying on lastInsertRowid (HANA-incompatible).
     const newPlacement = await tx.run(
-      SELECT.one.from(Placements).where({ ID: insertedId })
+      SELECT.one.from(Placements)
+        .where({ tank_ID, location_ID, fromDate, toDate: null })
     )
 
-    await tx.run(
-      UPDATE(Tanks)
-        .set({ status: 'ON_DISPLAY' })
-        .where({ ID: tank_ID })
-    )
+    const newStatus = statusForKind(location.type)
+    if (newStatus) {
+      await tx.run(
+        UPDATE(Tanks)
+          .set({ status: newStatus })
+          .where({ ID: tank_ID })
+      )
+    }
 
     return newPlacement
   })

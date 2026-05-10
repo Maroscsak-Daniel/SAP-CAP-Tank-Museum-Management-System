@@ -1,4 +1,6 @@
-annotate srv.MuseumService.Tanks with @(
+using { MuseumService } from './museum-service';
+
+annotate MuseumService.Tanks with @(
   UI.LineItem: [
     { Value: ID },
     { Value: name },
@@ -25,7 +27,7 @@ annotate srv.MuseumService.Tanks with @(
   ]
 );
 
-annotate service.MuseumService.Tanks.moveTank with @(
+annotate MuseumService.Tanks.moveTank with @(
   UI.ParameterDialog: {
     title: 'Move Tank'
   },
@@ -46,7 +48,7 @@ annotate service.MuseumService.Tanks.moveTank with @(
   ]
 );
 
-annotate service.MuseumService.Placements with @(
+annotate MuseumService.Placements with @(
   UI.LineItem: [
     { Value: location.name, Label: 'Location' },
     { Value: fromDate },

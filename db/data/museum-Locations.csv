@@ -1,4 +1,4 @@
 ID,name,type,description
-1,Main Hall,Hall,Primary exhibition hall
-2,Outdoor Yard,Outdoor,Open-air display area
-3,Workshop,Workshop,Restoration and maintenance area
+1,Main Hall,HALL,Primary exhibition hall
+2,Outdoor Yard,OUTDOOR,Open-air display area
+3,Workshop,WORKSHOP,Restoration and maintenance area
