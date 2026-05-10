@@ -2,12 +2,14 @@ namespace museum;
 
 using { managed } from '@sap/cds/common';
 
+@assert.range
 type TankStatus : String enum {
   IN_STORAGE;
   ON_DISPLAY;
   UNDER_RESTORATION;
 }
 
+@assert.range
 type LocationKind : String enum {
   HALL;
   OUTDOOR;
