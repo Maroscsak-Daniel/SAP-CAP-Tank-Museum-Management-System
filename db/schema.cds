@@ -16,9 +16,11 @@ type LocationKind : String enum {
   OFFSITE;
 }
 
-entity Tanks : managed {
+entity Tanks : managed @(assert.unique: {
+  name: [name]
+}) {
   key ID           : Integer;
-  name             : String(100) @mandatory @assert.unique;
+  name             : String(100) @mandatory;
   countryOfOrigin  : String(100);
   yearIntroduced   : Integer;
   status           : TankStatus default 'IN_STORAGE';
@@ -26,9 +28,11 @@ entity Tanks : managed {
                        on placements.tank = $self;
 }
 
-entity Locations : managed {
+entity Locations : managed @(assert.unique: {
+  name: [name]
+}) {
   key ID           : Integer;
-  name             : String(100) @mandatory @assert.unique;
+  name             : String(100) @mandatory;
   type             : LocationKind;
   description      : String(255);
   placements       : Association to many Placements
