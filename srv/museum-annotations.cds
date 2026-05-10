@@ -27,27 +27,6 @@ annotate MuseumService.Tanks with @(
   ]
 );
 
-annotate MuseumService.Tanks.moveTank with @(
-  UI.ParameterDialog: {
-    title: 'Move Tank'
-  },
-  UI.Parameters: [
-    {
-      $Type: 'UI.DataField',
-      Value: location_ID,
-      Label: 'Location'
-    },
-    {
-      $Type: 'UI.DataField',
-      Value: fromDate
-    },
-    {
-      $Type: 'UI.DataField',
-      Value: note
-    }
-  ]
-);
-
 annotate MuseumService.Placements with @(
   UI.LineItem: [
     { Value: location.name, Label: 'Location' },
