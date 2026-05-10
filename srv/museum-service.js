@@ -247,9 +247,10 @@ module.exports = cds.service.impl(async function () {
         .columns(
           'ID',
           'fromDate',
+          'toDate',
           'note',
-          { tank: ['ID', 'name', 'status'] },
-          { location: ['ID', 'name', 'type'] }
+          'tank_ID',
+          'location_ID'
         )
     )
   })
