@@ -2,6 +2,7 @@ using { museum as db } from '../db/schema';
 
 service MuseumService {
 
+  @odata.draft.enabled
   entity Tanks as projection on db.Tanks actions {
     action moveTank(
       location_ID : Integer,
