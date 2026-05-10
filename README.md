@@ -87,6 +87,13 @@ The first time you `rm db.sqlite`, you'll need `cds deploy --to sqlite` again be
 
 A manual `.http` suite at [`test.http`](test.http) walks through the full surface: schema constraints (uniqueness, enum validation), placement overlap rules, status sync via both write paths, `moveTank` semantics, and delete protection. Run it with the REST Client extension in VS Code or SAP Business Application Studio — send requests top-to-bottom; each `###` separator is one request.
 
+## Notes & references
+
+Living notes that grow alongside the project — practical things that bit us during development that aren't obvious from the framework docs.
+
+- [`docs/cap-gotchas.md`](docs/cap-gotchas.md) — concrete CAP/CDS pitfalls verified on this project: enum validation, annotation placement, deploy quirks, draft handling, CQN traps.
+- [`docs/bas-fiori-urls.md`](docs/bas-fiori-urls.md) — the `$fiori-preview` URL is metadata-only and hides Create/Edit; the real app lives at `/<app-id>/index.html`. Open the wrong one and you'll think your annotations are broken.
+
 ## Tech stack
 
 - [@sap/cds](https://cap.cloud.sap) 9.x — CAP runtime and CDS compiler
