@@ -1,0 +1,206 @@
+@base = http://localhost:4004/odata/v4/museum
+
+############################################
+### 0. INITIAL STATE CHECK
+############################################
+
+POST http://localhost:4004/odata/v4/museum/getCurrentPlacements
+
+### List Tanks
+GET {{base}}/Tanks
+
+### List Locations
+GET {{base}}/Locations
+
+### List Placements (expanded)
+GET {{base}}/Placements?$expand=tank,location
+
+
+############################################
+### 1. CREATE BASIC DATA
+############################################
+
+### Create Tank (new)
+POST {{base}}/Tanks
+Content-Type: application/json
+
+{
+  "ID": 100,
+  "name": "Panther",
+  "countryOfOrigin": "Germany",
+  "yearIntroduced": 1943,
+  "status": "Stored"
+}
+
+### Create Location (new)
+POST {{base}}/Locations
+Content-Type: application/json
+
+{
+  "ID": 100,
+  "name": "Test Hall",
+  "type": "Hall",
+  "description": "Testing location"
+}
+
+
+############################################
+### 2. VALID PLACEMENT (SHOULD WORK)
+############################################
+
+### Create valid placement
+POST {{base}}/Placements
+Content-Type: application/json
+
+{
+  "ID": 100,
+  "tank_ID": 100,
+  "location_ID": 100,
+  "fromDate": "2026-03-01",
+  "toDate": "2026-03-10",
+  "note": "Valid placement"
+}
+
+
+############################################
+### 3. VALIDATION TESTS (SHOULD FAIL)
+############################################
+
+### Missing tank_ID
+POST {{base}}/Placements
+Content-Type: application/json
+
+{
+  "ID": 101,
+  "location_ID": 100,
+  "fromDate": "2026-03-01"
+}
+
+### Missing location_ID
+POST {{base}}/Placements
+Content-Type: application/json
+
+{
+  "ID": 102,
+  "tank_ID": 100,
+  "fromDate": "2026-03-01"
+}
+
+### Invalid date range
+POST {{base}}/Placements
+Content-Type: application/json
+
+{
+  "ID": 103,
+  "tank_ID": 100,
+  "location_ID": 100,
+  "fromDate": "2026-03-10",
+  "toDate": "2026-03-01"
+}
+
+### Non-existing tank
+POST {{base}}/Placements
+Content-Type: application/json
+
+{
+  "ID": 104,
+  "tank_ID": 999,
+  "location_ID": 100,
+  "fromDate": "2026-03-01"
+}
+
+### Non-existing location
+POST {{base}}/Placements
+Content-Type: application/json
+
+{
+  "ID": 105,
+  "tank_ID": 100,
+  "location_ID": 999,
+  "fromDate": "2026-03-01"
+}
+
+
+############################################
+### 4. OVERLAP TESTS
+############################################
+
+### First placement (valid)
+POST {{base}}/Placements
+Content-Type: application/json
+
+{
+  "ID": 110,
+  "tank_ID": 100,
+  "location_ID": 100,
+  "fromDate": "2026-04-01",
+  "toDate": "2026-04-10"
+}
+
+### Overlapping placement (SHOULD FAIL)
+POST {{base}}/Placements
+Content-Type: application/json
+
+{
+  "ID": 111,
+  "tank_ID": 100,
+  "location_ID": 100,
+  "fromDate": "2026-04-05",
+  "toDate": "2026-04-15"
+}
+
+### Touching boundary (SHOULD WORK)
+POST {{base}}/Placements
+Content-Type: application/json
+
+{
+  "ID": 112,
+  "tank_ID": 100,
+  "location_ID": 100,
+  "fromDate": "2026-04-10",
+  "toDate": "2026-04-20"
+}
+
+
+############################################
+### 5. MOVE TANK ACTION
+############################################
+
+### Move tank (creates new open placement, closes previous)
+POST {{base}}/moveTank
+Content-Type: application/json
+
+{
+  "tank_ID": 100,
+  "location_ID": 100,
+  "fromDate": "2026-05-01",
+  "note": "Moved via action"
+}
+
+### Verify placements after move
+GET {{base}}/Placements?$filter=tank_ID eq 100&$orderby=fromDate
+
+
+############################################
+### 6. DELETE PROTECTION TESTS
+############################################
+
+### Attempt to delete tank in use (SHOULD FAIL)
+DELETE {{base}}/Tanks(100)
+
+### Attempt to delete location in use (SHOULD FAIL)
+DELETE {{base}}/Locations(100)
+
+
+############################################
+### 7. CLEANUP (OPTIONAL)
+############################################
+
+### Delete placements manually (if needed)
+DELETE {{base}}/Placements(100)
+
+### Then delete tank (SHOULD WORK AFTER CLEANUP)
+DELETE {{base}}/Tanks(100)
+
+### Then delete location
+DELETE {{base}}/Locations(100)

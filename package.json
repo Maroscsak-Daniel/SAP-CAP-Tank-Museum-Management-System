@@ -1,0 +1,57 @@
+{
+  "name": "tank-museum-management",
+  "version": "1.0.0",
+  "description": "A simple CAP project.",
+  "dependencies": {
+    "@cap-js/hana": "^2",
+    "@sap/cds": "^9",
+    "express": "^4"
+  },
+  "devDependencies": {
+    "@cap-js/cds-test": "^0.4.1",
+    "@cap-js/sqlite": "^2",
+    "@sap/cds-dk": "^9",
+    "jest": "^30.2.0",
+    "supertest": "^7.2.2",
+    "cds-plugin-ui5": "^0.13.0"
+  },
+  "scripts": {
+    "start": "cds-serve",
+    "test": "jest",
+    "watch-tank-ui": "cds watch --open tankui.tankui/index.html?sap-ui-xx-viewCache=false --livereload false"
+  },
+  "private": true,
+  "cds": {
+    "requires": {
+      "db": {
+        "kind": "sqlite",
+        "credentials": {
+          "url": "db.sqlite"
+        }
+      },
+      "auth": {
+        "kind": "mocked",
+        "users": {
+          "admin": {
+            "password": "admin",
+            "roles": [
+              "admin"
+            ]
+          },
+          "viewer": {
+            "password": "viewer",
+            "roles": [
+              "authenticated-user"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "workspaces": [
+    "app/*"
+  ],
+  "sapux": [
+    "app/tank-ui"
+  ]
+}

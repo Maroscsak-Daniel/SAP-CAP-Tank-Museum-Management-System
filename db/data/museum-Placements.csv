@@ -1,0 +1,4 @@
+ID,tank_ID,location_ID,fromDate,toDate,note
+1,1,1,2026-01-10,,Initial placement in main hall
+2,2,2,2026-01-15,,Stored outside
+3,3,3,2026-02-01,,Sent for restoration
