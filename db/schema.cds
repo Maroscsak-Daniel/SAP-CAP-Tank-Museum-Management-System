@@ -16,9 +16,8 @@ type LocationKind : String enum {
   OFFSITE;
 }
 
-entity Tanks : managed @(assert.unique: {
-  name: [name]
-}) {
+@assert.unique: { name: [name] }
+entity Tanks : managed {
   key ID           : Integer;
   name             : String(100) @mandatory;
   countryOfOrigin  : String(100);
@@ -28,9 +27,8 @@ entity Tanks : managed @(assert.unique: {
                        on placements.tank = $self;
 }
 
-entity Locations : managed @(assert.unique: {
-  name: [name]
-}) {
+@assert.unique: { name: [name] }
+entity Locations : managed {
   key ID           : Integer;
   name             : String(100) @mandatory;
   type             : LocationKind;
