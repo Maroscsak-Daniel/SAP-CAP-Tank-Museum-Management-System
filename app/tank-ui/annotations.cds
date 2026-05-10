@@ -156,3 +156,35 @@ annotate service.Placements with {
     ]
   };
 };
+
+// ============================================================================
+// moveTank action — parameter labels and value help on Location
+// ============================================================================
+
+annotate service.Tanks with actions {
+  moveTank (
+    location_ID @(
+      Common.Label: 'Location',
+      Common.ValueList: {
+        CollectionPath: 'Locations',
+        Parameters: [
+          {
+            $Type             : 'Common.ValueListParameterInOut',
+            LocalDataProperty : location_ID,
+            ValueListProperty : 'ID'
+          },
+          {
+            $Type             : 'Common.ValueListParameterDisplayOnly',
+            ValueListProperty : 'name'
+          },
+          {
+            $Type             : 'Common.ValueListParameterDisplayOnly',
+            ValueListProperty : 'type'
+          }
+        ]
+      }
+    ),
+    fromDate @Common.Label: 'From Date',
+    note     @Common.Label: 'Note'
+  );
+};
