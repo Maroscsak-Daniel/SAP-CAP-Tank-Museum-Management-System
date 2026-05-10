@@ -1,6 +1,14 @@
 using MuseumService as service from '../../srv/museum-service';
 
 // ============================================================================
+// Enable draft handling so the Fiori Elements V4 List Report and Object Page
+// render Create / Edit / Save / Discard buttons. CAP auto-generates the
+// _drafts companion tables on deploy.
+// ============================================================================
+
+annotate service.Tanks with @odata.draft.enabled;
+
+// ============================================================================
 // Field labels — drive every column header, dialog field, and detail row
 // ============================================================================
 
